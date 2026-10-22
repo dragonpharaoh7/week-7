@@ -22,15 +22,14 @@ def fetch_location_data(geolocator, loc):
     location = geolocator.geocode(loc)
 
     if location is None:
-        return None
+        return {"location": loc, "latitude": float("nan"), "longitude": float("nan"), "type": float("nan")}
 
     return {"location": loc, "latitude": location.latitude, "longitude": location.longitude, "type": location.raw.get("type")}
 
 
-def build_geo_dataframe(locations):
-    geo_data = [fetch_location_data(geo, loc) for loc in locations]
-    # added to filter out None values
-    geo_data = [row for row in geo_data if row is not None]
+def build_geo_dataframe(geolocator, locations):
+    geo_data = [fetch_location_data(geolocator, loc) for loc in locations]
+
     return pd.DataFrame(geo_data)
 
 
@@ -38,7 +37,7 @@ def test_valid_locations():
     geo = get_geolocator()
     locations = ["Museum of Modern Art",
                  "USS Alabama Battleship Memorial Park"]
-    df = build_geo_dataframe(locations)
+    df = build_geo_dataframe(geo, locations)
 
 
 if __name__ == "__main__":
@@ -47,6 +46,6 @@ if __name__ == "__main__":
     locations = ["Museum of Modern Art",
                  "iuyt8765(*&)", "Alaska", "Franklin's Barbecue", "Burj Khalifa"]
 
-    df = build_geo_dataframe(locations)
+    df = build_geo_dataframe(geo, locations)
 
     df.to_csv("./geo_data.csv")
